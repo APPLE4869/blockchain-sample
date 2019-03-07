@@ -1,5 +1,6 @@
+# coding: utf-8
 module Blockchain
-  class Blockchain
+  class Base
     attr_reader :blocks
 
     def initialize
@@ -27,7 +28,7 @@ module Blockchain
     end
 
     def next_difficulty_target
-      Blockchain.calc_difficulty_target(@blocks)
+      Base.calc_difficulty_target(@blocks)
     end
 
     # ブロックチェーンを差し替える
@@ -38,7 +39,7 @@ module Blockchain
         return
       end
   
-      unless (!Blockchain.is_valid_chain(new_blocks))
+      unless (!Base.is_valid_chain(new_blocks))
         p "チェーンが有効でないため無視"
         return
       end

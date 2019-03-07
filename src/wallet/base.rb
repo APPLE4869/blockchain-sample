@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'securerandom'
 require 'openssl'
 
@@ -5,8 +6,8 @@ module Wallet
   class Base
     attr_reader :public_key # 取引の際に利用するアドレス
 
-    def initialize(blockchain)
-      raise ArgumentError unless blockchain.is_a?(Blockchain::Blockchain)
+    def initialize(blockchain:, router:)
+      raise ArgumentError unless blockchain.is_a?(Blockchain::Base) && router.is_a?(Router::Base)
 
       @blockchain = blockchain
       # ブロックチェーンでは「楕円曲線暗号」というものを利用して秘密鍵・公開鍵を利用していく。
@@ -15,7 +16,9 @@ module Wallet
       # 楕円曲線暗号の説明
       # @see https://gaiax-blockchain.com/elliptic-curve-cryptography
       @key_pair = OpenSSL::PKey::EC.generate("secp256k1")
-      @public_key = @key_pair.public_key.to_bn.to_s(16).downcase
+      @public_key = @key_pair.public_key.to_bn.to_s(16)
+
+      @router = router
     end
   
     # 新しい取引を作成する
@@ -27,7 +30,8 @@ module Wallet
         p '残高不足です。'
         return
       end
-      Blockchain::Transaction.create_transaction(sender_wallet: self, recipient: recipient, amount: amount)
+      tx = Blockchain::Transaction.create_transaction(sender_wallet: self, recipient: recipient, amount: amount)
+      @router.push_transaction(tx)
     end
 
     # 残高を取得する

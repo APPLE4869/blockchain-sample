@@ -1,3 +1,5 @@
+# coding: utf-8
+
 require 'digest/sha2'
 require 'json'
 
@@ -42,18 +44,18 @@ module Blockchain
     end
 
     def valid?
-      "0x#{@hash}".to_i < 2 ** @difficulty_target;
+      Integer("0x#{hash}") < 2 ** @difficulty_target
     end
 
-    def to_json(options = {})
+    def to_h
       {
         timestamp: @timestamp,
         prev_hash: @prev_hash,
         difficulty_target: @difficulty_target,
         nonce: @nonce,
-        transactions: @transactions.map(&:to_json),
+        transactions: @transactions.map(&:to_h),
         mining_duration: @mining_duration
-      }.to_json
+      }
     end
   end
 end

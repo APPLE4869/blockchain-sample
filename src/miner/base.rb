@@ -1,15 +1,19 @@
+# coding: utf-8
+
 require 'securerandom'
 
 module Miner
   class Base
     attr_reader :transaction_pool
 
-    def initialize(blockchain:, reward_address:)
-      raise ArgumentError unless blockchain.is_a?(Blockchain::Blockchain) && reward_address.is_a?(String)
+    def initialize(blockchain:, reward_address:, router:)
+      raise ArgumentError unless blockchain.is_a?(Blockchain::Base) && reward_address.is_a?(String) && router.is_a?(Router::Base)
 
       @transaction_pool = []
       @blockchain = blockchain
       @reward_address = reward_address
+      @router = router
+      @router.subscribe(self)
     end
   
     def mine
@@ -38,6 +42,7 @@ module Miner
   
       @blockchain.add_block(block)
       clear_transactions
+      @router.mine_done
     end
   
     # 取引データを追加する

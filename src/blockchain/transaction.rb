@@ -1,6 +1,6 @@
+# coding: utf-8
 require 'digest/sha2'
 require 'securerandom'
-require 'json'
 require 'openssl'
 
 module Blockchain
@@ -19,13 +19,13 @@ module Blockchain
         @signature = signature
       end
 
-      def to_json
+      def to_h
         {
           timestamp: @timestamp,
           amount: @amount,
           address: @address,
-          signature: @signature
-        }.to_json
+          signature: Digest::SHA256.hexdigest(@signature)
+        }
       end
     end
 
@@ -39,11 +39,11 @@ module Blockchain
         @address = address
       end
 
-      def to_json(options = {})
+      def to_h
         {
           amount: @amount,
           address: @address
-        }.to_json
+        }
       end
     end
 
@@ -61,7 +61,7 @@ module Blockchain
         @outputs << Output.new(amount: balance - amount, address: sender_wallet.public_key)
       end
     end
-  
+
     def sign_transaction(sender_wallet)
       raise ArgumentError unless sender_wallet.is_a?(Wallet::Base)
 
@@ -73,14 +73,18 @@ module Blockchain
         signature: sender_wallet.sign(hash)
       )
     end
-  
+
+    # トランザクションの正当性を検証する
     def verify_transaction
       hash = Digest::SHA256.hexdigest(@outputs.to_json)
 
-      ec = OpenSSL::PKey::EC.new(@input.address)
-      ec.dsa_verify_asn1(hash, @input.signature)
-
-      # ec.keyFromPublic(@input.address, 'hex').verify(hash, @input.signature)
+      # ここの検証処理は楕円曲線暗号をOpenSSL::PKey::ECで扱う際の特有の処理なので、特に覚える必要はない。
+      group = OpenSSL::PKey::EC::Group.new('secp256k1')
+      key = OpenSSL::PKey::EC.new(group)
+      public_key_bn = OpenSSL::BN.new(@input.address, 16)
+      public_key = OpenSSL::PKey::EC::Point.new(group, public_key_bn)
+      key.public_key = public_key
+      key.dsa_verify_asn1(hash, @input.signature)
     end
 
     def create_coinbase(recipient)
@@ -90,13 +94,13 @@ module Blockchain
       @coinbase = "This is coinbase created at #{Time.now.to_s}"
     end
 
-    def to_json
+    def to_h
       {
         id: @id,
-        outputs: @outputs,
-        input: @input,
+        outputs: @outputs.map(&:to_h),
+        input: @input.to_h,
         coinbase: @coinbase,
-      }.to_json
+      }
     end
 
     def self.create_transaction(sender_wallet:, recipient:, amount:)
