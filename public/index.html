@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Mofu会スペシャル Blockchain Sample</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css" integrity="sha384-+d0P83n9kaQMCwj8F4RJB66tzIwOKmrdb46+porD/OvrJ+37WqIM7UoBtwHO6Nlg" crossorigin="anonymous">
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+  <style>
+    body {
+      padding-top: 5rem;
+    }
+    .row {
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <a class="navbar-brand" href="#">Mofu会スペシャル Blockchain Sample</a>
+  </nav>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm">
+        <button class="btn btn-primary btn-block" data-method="get" data-url="/wallet">ウォレット</button>
+      </div>
+      <div class="col-sm">
+        <button class="btn btn-primary btn-block" data-method="get" data-url="/blocks">ブロック</button>
+      </div>
+      <div class="col-sm">
+        <button class="btn btn-primary btn-block" data-method="get" data-url="/transactions">取引</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm">
+        <button class="btn btn-warning btn-block" data-method="post" data-url="/transact">送金</button>
+        <div class="form-group row">
+          <label for="recipient" class="col-sm-5 col-form-label">送り先アドレス（recipient）</label>
+          <div class="col-sm-7">
+            <input class="form-control" type="text" id="recipient" placeholder="xxxxxxxxxxxxxxxxxxxxxxx" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="amount" class="col-sm-5 col-form-label">コイン（amount）</label>
+          <div class="col-sm-7">
+            <input class="form-control" type="number" id="amount" placeholder="100" />
+          </div>
+        </div>
+      </div>
+      <div class="col-sm">
+        <button class="btn btn-warning btn-block" data-method="post" data-url="/mine">マイニング</button>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <i class="fas fa-spinner fa-spin" style="display:none;"></i>
+      </div>
+      <pre id="result"></pre>
+    </div>
+  <script>
+    $('button').on('click', function() {
+      const type = $(this).data("method");
+      const url = $(this).data("url");
+
+      let data = null;
+      if (url === '/transact') {
+        recipient = $('#recipient').val();
+        amount = $('#amount').val();
+        if (recipient.trim().lenth === 0 || Number(amount) <= 0 ) {
+          alert('取引が不正です。');
+          return;
+        }
+        data = { recipient, amount };
+      }
+
+      $('#result').text('');
+      $('.fa-spinner').show();
+      $.ajax({
+        url,
+        type,
+        data,
+        dataType: 'json',
+      }).done(function(json) {
+        try {
+          $('#result').text(JSON.stringify(json, null, 2));
+        } catch(e) {}
+      }).always(function() {
+        $('.fa-spinner').hide();
+      })
+    });
+  </script>
+</body>
+</html>
