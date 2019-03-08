@@ -16,7 +16,7 @@ module Miner
       @router.subscribe(self)
     end
   
-    def mine
+    def mine(output: false)
       mining_start_timestamp = Time.now.to_i
       prev_hash = @blockchain.last_hash
       target = @blockchain.next_difficulty_target
@@ -37,6 +37,11 @@ module Miner
           mining_duration: timestamp - mining_start_timestamp,
         )
 
+        if output
+          p "nonce   : #{nonce}"
+          p "ハッシュ : #{block.hash}"
+        end
+
         break if block.valid?
       end
   
@@ -56,13 +61,11 @@ module Miner
 
       @transaction_pool = @transaction_pool.select { |t| t.input && t.input.address != tx.input.address }
       @transaction_pool << tx
-      p 'トランザクションを追加しました。'
     end
   
     # トランザクションプールの取引データを初期化する
     def clear_transactions
       @transaction_pool = []
-      p 'トランザクションを削除しました。'
     end
   end
 end

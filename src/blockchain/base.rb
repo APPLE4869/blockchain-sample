@@ -51,7 +51,7 @@ module Blockchain
 
     # 全てのトランザクションを繋げて返す
     def all_transactions
-      @blocks.reduce([]) { |a, block| a.concat(block.transactions) }
+      @blocks.reduce([]) { |a, block| a + block.transactions }
     end
 
     def self.calc_difficulty_target(blocks)

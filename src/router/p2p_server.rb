@@ -13,6 +13,7 @@ class P2pServer
   end
 
   def listen
+    return # うまく言っていないので一旦listenしないようにする。
     EventMachine::WebSocket.start(host: "0.0.0.0", port: P2P_PORT) do |socket|
       socket.onopen { connect_to_socket(socket) }
     end
