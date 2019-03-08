@@ -24,7 +24,7 @@ a_miner = Miner::Base.new(blockchain: blockchain, reward_address: a_wallet.publi
 b_miner = Miner::Base.new(blockchain: blockchain, reward_address: b_wallet.public_key, router: router)
 c_miner = Miner::Base.new(blockchain: blockchain, reward_address: c_wallet.public_key, router: router)
 
-## Aさん、Bさんにコインを付与しておく。
+## この後の取引用にAさん、Bさんにコインを付与しておく。（事前にマイニングをして報酬のコインを入手してもらう）
 a_miner.mine
 a_miner.mine
 b_miner.mine
@@ -136,6 +136,7 @@ loop do
     puts
   rescue => e
     p e.message
+    break
   end
 end
 
