@@ -8,7 +8,8 @@ require 'em-websocket'
 # wallet = Wallet::Base.new(block_chain)
 # miner = Miner::Base.new(block_chain, wallet.public_key)
 
-EM::WebSocket.start(host: "0.0.0.0", port: 7080) do |ws|
+p EM::WebSocket
+EM::WebSocket.start(host: "127.0.0.1", port: 7080) do |ws|
   p "--------------------------------"
   ws.onopen do |handshake|
     puts "WebSocket connection open"

@@ -34,6 +34,7 @@ module Blockchain
     # ブロックチェーンを差し替える
     def replace_chain(new_blocks)
       raise ArgumentError unless new_blocks.all? { |b| b.is_a?(Block) }
+
       if (new_blocks.length < @blocks.length)
         p "チェーンが短いため無視"
         return
